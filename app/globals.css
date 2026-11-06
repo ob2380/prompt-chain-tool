@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root { --background: #f6f7f9; --foreground: #14171c; --card: #ffffff; --muted: #5b6472; --line: #dfe3ea; --accent: #4f46e5; }
+.dark { --background: #0b0f17; --foreground: #e6e9ef; --card: #121826; --muted: #94a0b4; --line: #232c3d; --accent: #818cf8; }
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body { background: var(--background); color: var(--foreground); font-family: var(--font-geist-sans), system-ui, sans-serif; }
+
+@layer components {
+  .card { @apply rounded-xl border border-line bg-card p-4; }
+  .input { @apply w-full rounded-lg border border-line bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/50; }
+  .label { @apply mb-1 block text-xs font-medium text-muted; }
+  .btn { @apply inline-flex items-center justify-center gap-1 rounded-lg border border-line px-3 py-1.5 text-sm font-medium transition hover:bg-foreground/5 disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-primary { @apply border-transparent bg-accent text-white hover:bg-accent/90; }
+  .btn-danger { @apply text-red-600 dark:text-red-400 hover:bg-red-500/10; }
+}
