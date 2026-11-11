@@ -1,0 +1,23 @@
+{
+  "app": {
+    "[project]/app/_not-found/page": [
+      "static/media/Geist_Variable-s.p.43azbxi7zpibd.woff2",
+      "static/media/GeistMono_Variable.p.2vtemngyy8z-u.woff2"
+    ],
+    "[project]/app/chains/[id]/page": [
+      "static/media/Geist_Variable-s.p.43azbxi7zpibd.woff2",
+      "static/media/GeistMono_Variable.p.2vtemngyy8z-u.woff2"
+    ],
+    "[project]/app/page": [
+      "static/media/Geist_Variable-s.p.43azbxi7zpibd.woff2",
+      "static/media/GeistMono_Variable.p.2vtemngyy8z-u.woff2"
+    ],
+    "[project]/app/sign-in/page": [
+      "static/media/Geist_Variable-s.p.43azbxi7zpibd.woff2",
+      "static/media/GeistMono_Variable.p.2vtemngyy8z-u.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}

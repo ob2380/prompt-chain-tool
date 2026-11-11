@@ -4,12 +4,10 @@ export async function getAdminContext() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { supabase, user: null, isSuperadmin: false };
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_superadmin")
-    .eq("id", user.id)
-    .maybeSingle();
-  return { supabase, user, isSuperadmin: profile?.is_superadmin === true };
+  // profiles.is_superadmin isn't readable by regular queries (RLS lockdown), so ask the database via its
+  // SECURITY DEFINER helper, which checks profiles.is_superadmin = TRUE for the signed-in user.
+  const { data } = await supabase.rpc("is_superadmin");
+  return { supabase, user, isSuperadmin: data === true };
 }
 
 /** For server actions / route handlers: throws unless profiles.is_superadmin is TRUE. */

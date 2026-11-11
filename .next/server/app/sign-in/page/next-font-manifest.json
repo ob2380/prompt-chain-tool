@@ -1,0 +1,11 @@
+{
+  "pages": {},
+  "app": {
+    "[project]/app/sign-in/page": [
+      "static/media/Geist_Variable-s.p.43azbxi7zpibd.woff2",
+      "static/media/GeistMono_Variable.p.2vtemngyy8z-u.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pagesUsingSizeAdjust": false
+}

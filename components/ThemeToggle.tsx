@@ -32,13 +32,13 @@ export default function ThemeToggle() {
   }
 
   return (
-    <div className="inline-flex rounded-lg border border-line p-0.5 text-xs" role="group" aria-label="Theme">
+    <div className="inline-flex rounded-xl border-[3px] border-[var(--ink)] bg-card p-0.5 text-xs font-bold" role="group" aria-label="Theme">
       {(["light", "system", "dark"] as Mode[]).map((m) => (
         <button
           key={m}
           onClick={() => choose(m)}
           aria-pressed={mode === m}
-          className={`rounded-md px-2.5 py-1 capitalize ${mode === m ? "bg-accent text-white" : "text-muted hover:text-foreground"}`}
+          className={`rounded-md px-2.5 py-1 capitalize ${mode === m ? "bg-accent text-[var(--accent-ink)]" : "text-muted hover:text-foreground"}`}
         >
           {m}
         </button>

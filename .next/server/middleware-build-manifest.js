@@ -1,0 +1,80 @@
+globalThis.__BUILD_MANIFEST = {
+  "pages": {
+    "/_app": []
+  },
+  "devFiles": [],
+  "polyfillFiles": [
+    "static/chunks/0cz1d0mv5g_q7.js"
+  ],
+  "lowPriorityFiles": [
+    "static/cKGNL7anwuERjeL8bqoZ3/_buildManifest.js",
+    "static/cKGNL7anwuERjeL8bqoZ3/_ssgManifest.js",
+    "static/cKGNL7anwuERjeL8bqoZ3/_clientMiddlewareManifest.js"
+  ],
+  "rootMainFiles": [
+    "static/chunks/310vm2bl3xxpt.js",
+    "static/chunks/1d-3ziz_810o8.js",
+    "static/chunks/23e6jep2anmtk.js",
+    "static/chunks/3lm3iru4lln-4.js",
+    "static/chunks/turbopack-2u1d16houkiyo.js"
+  ],
+  "rootMainFilesTree": {},
+  "pagesChunkGroupBootstrapParams": {
+    "/page": {
+      "otherChunks": [
+        "static/chunks/310vm2bl3xxpt.js",
+        "static/chunks/1d-3ziz_810o8.js",
+        "static/chunks/23e6jep2anmtk.js",
+        "static/chunks/3lm3iru4lln-4.js"
+      ],
+      "runtimeModuleIds": [
+        94553
+      ]
+    },
+    "/_not-found/page": {
+      "otherChunks": [
+        "static/chunks/310vm2bl3xxpt.js",
+        "static/chunks/1d-3ziz_810o8.js",
+        "static/chunks/23e6jep2anmtk.js",
+        "static/chunks/3lm3iru4lln-4.js"
+      ],
+      "runtimeModuleIds": [
+        94553
+      ]
+    },
+    "/_global-error/page": {
+      "otherChunks": [
+        "static/chunks/310vm2bl3xxpt.js",
+        "static/chunks/1d-3ziz_810o8.js",
+        "static/chunks/23e6jep2anmtk.js",
+        "static/chunks/3lm3iru4lln-4.js"
+      ],
+      "runtimeModuleIds": [
+        94553
+      ]
+    },
+    "/chains/[id]/page": {
+      "otherChunks": [
+        "static/chunks/310vm2bl3xxpt.js",
+        "static/chunks/1d-3ziz_810o8.js",
+        "static/chunks/23e6jep2anmtk.js",
+        "static/chunks/3lm3iru4lln-4.js"
+      ],
+      "runtimeModuleIds": [
+        94553
+      ]
+    },
+    "/sign-in/page": {
+      "otherChunks": [
+        "static/chunks/310vm2bl3xxpt.js",
+        "static/chunks/1d-3ziz_810o8.js",
+        "static/chunks/23e6jep2anmtk.js",
+        "static/chunks/3lm3iru4lln-4.js"
+      ],
+      "runtimeModuleIds": [
+        94553
+      ]
+    }
+  },
+  "chunkLoadingGlobal": "TURBOPACK"
+};

@@ -1,8 +1,16 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root { --background: #f6f7f9; --foreground: #14171c; --card: #ffffff; --muted: #5b6472; --line: #dfe3ea; --accent: #4f46e5; }
-.dark { --background: #0b0f17; --foreground: #e6e9ef; --card: #121826; --muted: #94a0b4; --line: #232c3d; --accent: #818cf8; }
+/* Laugh Track look (same as the Humor Project admin + public apps): sky backdrop, cream panels,
+   thick brown outlines with a hard drop shadow, chunky orange buttons, Fredoka headings, Nunito body. */
+:root {
+  --background: #bfe6ff; --foreground: #3b2a1a; --card: #fff8e1; --paper: #fffdf2;
+  --muted: #6f5d47; --line: #e3d5ab; --ink: #3b2a1a; --accent: #ff8a1f; --accent-ink: #3b2a1a;
+}
+.dark {
+  --background: #14202e; --foreground: #fff3d6; --card: #2a2118; --paper: #1d1710;
+  --muted: #c9b894; --line: #5a4a35; --ink: #f0dfb4; --accent: #ff8a1f; --accent-ink: #1d1710;
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -11,17 +19,20 @@
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-accent: var(--accent);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: "Nunito", var(--font-geist-sans), system-ui, sans-serif;
+  --font-display: "Fredoka", "Nunito", system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
-body { background: var(--background); color: var(--foreground); font-family: var(--font-geist-sans), system-ui, sans-serif; }
+body { background: var(--background); color: var(--foreground); font-family: "Nunito", var(--font-geist-sans), system-ui, sans-serif; font-weight: 500; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: 0; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 
 @layer components {
-  .card { @apply rounded-xl border border-line bg-card p-4; }
-  .input { @apply w-full rounded-lg border border-line bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/50; }
-  .label { @apply mb-1 block text-xs font-medium text-muted; }
-  .btn { @apply inline-flex items-center justify-center gap-1 rounded-lg border border-line px-3 py-1.5 text-sm font-medium transition hover:bg-foreground/5 disabled:opacity-50 disabled:cursor-not-allowed; }
-  .btn-primary { @apply border-transparent bg-accent text-white hover:bg-accent/90; }
-  .btn-danger { @apply text-red-600 dark:text-red-400 hover:bg-red-500/10; }
+  .card { @apply rounded-[14px] border-[3px] border-[var(--ink)] bg-card p-4 shadow-[0_4px_0_var(--ink)]; }
+  .input { @apply w-full rounded-[10px] border-[3px] border-[var(--ink)] bg-[var(--paper)] px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-accent; }
+  .label { @apply mb-1 block text-xs font-bold text-muted; }
+  .btn { @apply inline-flex items-center justify-center gap-1 rounded-xl border-[3px] border-[var(--ink)] bg-card px-3 py-1.5 text-sm font-semibold shadow-[0_3px_0_var(--ink)] transition hover:bg-[var(--paper)] active:translate-y-[3px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed; font-family: var(--font-display); }
+  .btn-primary { @apply bg-accent text-[var(--accent-ink)] hover:bg-accent/90; }
+  .btn-danger { @apply bg-[#c62828] text-white hover:bg-[#d63a3a]; }
 }

@@ -1,0 +1,11 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/generate/route": "/api/generate",
+  "/auth/callback/route": "/auth/callback",
+  "/auth/signout/route": "/auth/signout",
+  "/chains/[id]/page": "/chains/[id]",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/",
+  "/sign-in/page": "/sign-in"
+}
