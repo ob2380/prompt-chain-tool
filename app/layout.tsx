@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Prompt Chain Tool",
-  description: "Create, edit, reorder and run humor-flavor prompt chains.",
+  description: "Create, edit, reorder and run prompt chains.",
 };
 
 // Runs before paint so dark/light/system never flashes.

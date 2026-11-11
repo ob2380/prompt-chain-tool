@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 type Trace = { step: number; description: string | null; model: string; seconds: number; output?: string; error?: string };
 type Result = { captions?: string[]; trace?: Trace[]; imageUrl?: string; error?: string };
 
-export default function GeneratePanel({ flavorId, images, stepCount }: { flavorId: number; images: { id: string; url: string }[]; stepCount: number }) {
+export default function GeneratePanel({ chainId, images, stepCount }: { chainId: number; images: { id: number; url: string }[]; stepCount: number }) {
   const router = useRouter();
-  const [imageId, setImageId] = useState(images[0]?.id ?? "");
+  const [imageId, setImageId] = useState<string>(images[0] ? String(images[0].id) : "");
   const [imageUrl, setImageUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
-  const preview = imageUrl.trim() || images.find((i) => i.id === imageId)?.url;
+  const preview = imageUrl.trim() || images.find((i) => String(i.id) === imageId)?.url;
 
   async function run() {
     setBusy(true); setResult(null);
@@ -19,7 +19,7 @@ export default function GeneratePanel({ flavorId, images, stepCount }: { flavorI
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ flavorId, ...(imageUrl.trim() ? { imageUrl: imageUrl.trim() } : { imageId }) }),
+        body: JSON.stringify({ chainId, ...(imageUrl.trim() ? { imageUrl: imageUrl.trim() } : { imageId }) }),
       });
       const json: Result = await res.json().catch(() => ({ error: `Unexpected response (${res.status})` }));
       setResult(json);
@@ -33,7 +33,7 @@ export default function GeneratePanel({ flavorId, images, stepCount }: { flavorI
     <section className="card space-y-4">
       <div>
         <h2 className="text-lg font-semibold">Generate media</h2>
-        <p className="text-sm text-muted">Runs all {stepCount} step{stepCount === 1 ? "" : "s"} in order on a test image and saves the resulting captions to this chain.</p>
+        <p className="text-sm text-muted">Runs all {stepCount} step{stepCount === 1 ? "" : "s"} in order on a test image and logs every step so the results show up under this chain.</p>
       </div>
       <div className="grid gap-4 md:grid-cols-[1fr_220px]">
         <div className="space-y-3">

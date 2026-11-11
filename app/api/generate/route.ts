@@ -12,36 +12,47 @@ export async function POST(request: Request) {
   const { supabase, user } = ctx;
 
   const body = await request.json().catch(() => ({}));
-  const flavorId = Number(body.flavorId);
-  if (!flavorId) return NextResponse.json({ error: "flavorId is required" }, { status: 400 });
+  const chainId = Number(body.chainId);
+  if (!chainId) return NextResponse.json({ error: "chainId is required" }, { status: 400 });
 
   // 1. image
-  let imageId: string | null = body.imageId ?? null;
+  let imageId: number | null = body.imageId ? Number(body.imageId) : null;
   let imageUrl: string | null = null;
-  if (!imageId && typeof body.imageUrl === "string" && /^https?:\/\//.test(body.imageUrl)) {
-    const { data, error } = await supabase.from("images").insert({ url: body.imageUrl, is_common_use: false, is_public: false }).select("id, url").single();
+  if (typeof body.imageUrl === "string" && /^https?:\/\//.test(body.imageUrl.trim())) {
+    const { data, error } = await supabase
+      .from("images")
+      .insert({ url: body.imageUrl.trim(), description: "Prompt chain test image", is_seed: false, created_by: user.id })
+      .select("id, url")
+      .single();
     if (error) return NextResponse.json({ error: `Could not save image: ${error.message}` }, { status: 400 });
     imageId = data.id; imageUrl = data.url;
   } else if (imageId) {
     const { data } = await supabase.from("images").select("id, url").eq("id", imageId).maybeSingle();
     imageUrl = data?.url ?? null;
   }
-  if (!imageId || !imageUrl) return NextResponse.json({ error: "Pick a test image or paste an image URL." }, { status: 400 });
+  if (!imageId || !imageUrl || !/^https?:\/\//.test(imageUrl)) return NextResponse.json({ error: "Pick a test image or paste a public image URL (https://…)." }, { status: 400 });
 
   // 2. steps + models
   const { data: steps, error: stepErr } = await supabase
-    .from("humor_flavor_steps").select("*").eq("humor_flavor_id", flavorId).order("order_by").order("id");
+    .from("prompt_chain_steps").select("*").eq("prompt_chain_id", chainId).order("step_order");
   if (stepErr) return NextResponse.json({ error: stepErr.message }, { status: 400 });
   const active = (steps ?? []).filter((s) => !s.is_hidden);
   if (!active.length) return NextResponse.json({ error: "This chain has no steps yet." }, { status: 400 });
-  const { data: models } = await supabase.from("llm_models").select("id, name, provider_model_id, is_temperature_supported").in("id", active.map((s) => s.llm_model_id));
-  const modelById = new Map((models ?? []).map((m) => [m.id, m as Model]));
+  const { data: models } = await supabase
+    .from("llm_models").select("id, name, provider_model_id, is_temperature_supported, llm_providers(name)").in("id", active.map((s) => s.llm_model_id));
+  const modelById = new Map((models ?? []).map((m) => {
+    const p = Array.isArray(m.llm_providers) ? m.llm_providers[0] : m.llm_providers;
+    return [m.id, { id: m.id, name: m.name, provider_model_id: m.provider_model_id, is_temperature_supported: m.is_temperature_supported, provider: p?.name ?? "" } as Model];
+  }));
 
-  // 3. records for traceability
-  const { data: req, error: reqErr } = await supabase.from("caption_requests").insert({ image_id: imageId, profile_id: user.id }).select("id").single();
+  // 3. record the run for traceability
+  const { data: req, error: reqErr } = await supabase
+    .from("generation_requests")
+    .insert({ profile_id: user.id, image_id: imageId, prompt_chain_id: chainId, status: "pending", created_by: user.id, modified_by: user.id })
+    .select("id").single();
   if (reqErr) return NextResponse.json({ error: reqErr.message }, { status: 400 });
-  const { data: chain, error: chainErr } = await supabase.from("llm_prompt_chains").insert({ caption_request_id: req.id }).select("id").single();
-  if (chainErr) return NextResponse.json({ error: chainErr.message }, { status: 400 });
+  const finish = (status: "completed" | "failed") =>
+    supabase.from("generation_requests").update({ status, updated_at: new Date().toISOString() }).eq("id", req.id);
 
   // 4. run steps in order
   const outputs: string[] = [];
@@ -56,47 +67,41 @@ export async function POST(request: Request) {
     const started = Date.now();
     try {
       if (!model) throw new Error("Model not found");
-      if (s.llm_input_type_id === 1 && !image) image = await fetchImage(imageUrl);
-      const user_prompt = buildUserPrompt(s.llm_user_prompt, outputs);
+      const withImage = s.input_type === "image_and_text";
+      if (withImage && !image) image = await fetchImage(imageUrl);
+      const userPrompt = buildUserPrompt(s.user_prompt, outputs);
       const out = await callModel(model, {
-        system: s.llm_system_prompt,
-        user: user_prompt,
+        system: s.system_prompt,
+        user: userPrompt,
         temperature: s.llm_temperature == null ? null : Number(s.llm_temperature),
-        image: s.llm_input_type_id === 1 ? image : null,
+        image: withImage ? image : null,
       });
-      item.seconds = Math.round((Date.now() - started) / 1000);
+      const seconds = (Date.now() - started) / 1000;
+      item.seconds = Math.round(seconds);
       item.output = out;
       outputs.push(out);
-      await supabase.from("llm_model_responses").insert({
-        llm_model_response: out,
-        processing_time_seconds: Math.min(item.seconds, 32000),
+      await supabase.from("llm_responses").insert({
+        generation_request_id: req.id,
+        prompt_chain_step_id: s.id,
         llm_model_id: s.llm_model_id,
-        profile_id: user.id,
-        caption_request_id: req.id,
-        llm_system_prompt: s.llm_system_prompt ?? "",
-        llm_user_prompt: user_prompt,
+        system_prompt: s.system_prompt,
+        user_prompt: userPrompt,
         llm_temperature: s.llm_temperature,
-        humor_flavor_id: flavorId,
-        llm_prompt_chain_id: chain.id,
-        humor_flavor_step_id: s.id,
+        response: out,
+        processing_time_seconds: Math.round(seconds * 100) / 100,
+        is_seed: false,
+        created_by: user.id,
+        modified_by: user.id,
       });
     } catch (e) {
       item.seconds = Math.round((Date.now() - started) / 1000);
       item.error = e instanceof Error ? e.message : String(e);
+      await finish("failed");
       return NextResponse.json({ error: `Step ${i + 1} failed: ${item.error}`, trace, imageUrl }, { status: 502 });
     }
   }
 
-  // 5. final output -> captions
+  await finish("completed");
   const captions = parseCaptions(outputs[outputs.length - 1]).slice(0, 20);
-  if (!captions.length) return NextResponse.json({ error: "The last step produced no captions.", trace, imageUrl }, { status: 502 });
-  const { error: capErr } = await supabase.from("captions").insert(
-    captions.map((content) => ({
-      content, is_public: false, profile_id: user.id, image_id: imageId,
-      humor_flavor_id: flavorId, caption_request_id: req.id, llm_prompt_chain_id: chain.id,
-    })),
-  );
-  if (capErr) return NextResponse.json({ error: `Captions generated but not saved: ${capErr.message}`, captions, trace, imageUrl }, { status: 500 });
-
-  return NextResponse.json({ captions, trace, imageUrl, promptChainId: chain.id });
+  return NextResponse.json({ captions, trace, imageUrl, generationRequestId: req.id });
 }
